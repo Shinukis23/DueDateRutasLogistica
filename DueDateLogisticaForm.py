@@ -14,7 +14,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 import json
 
 #from datetime import  timedelta
-from Fun_DueDateLogistica import *
+#from Fun_DueDateLogistica import *
+from Fun_EficienciaRutas import *
 from datetime import datetime,timedelta
 #import datetime
 #from datetime import 
@@ -58,7 +59,12 @@ def parse_args():
     """ Use GooeyParser to build up the arguments we will use in our script
     Save the arguments in a default json file so that we can retrieve them
     every time we run the script.
+
     """
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Cambia el directorio de trabajo al directorio del script
+    os.chdir(script_dir)
     stored_args = {}
     # get the script name without the extension & use it to build up
     # the json filename
@@ -97,7 +103,12 @@ def parse_args():
 
 
 def Principal(Directorio_de_trabajo,Rutas_pendientes):
-
+  #print(Directorio_de_trabajo)
+  # Obtiene la ruta del directorio donde se encuentra el script
+  
+  directory = os.getcwd()
+  print("Directorio original: ",directory)
+  print("Directorio de trabajo: ",Directorio_de_trabajo)
   # Define the Drive API client
   service = build("drive", "v3", credentials=credentials)
   # Define the URL to download the file from
@@ -184,9 +195,12 @@ def Principal(Directorio_de_trabajo,Rutas_pendientes):
   columnas=[11,15]
   nombre1 = nombre.split('.')
   nombre2 = nombre.split('_')
-  #print(nombre2)
+  nombre3 = nombre.split('\\')
+  print(nombre2)
+  print(nombre3)
+  filename2= nombre3[2] + "_Reporte.xlsx"
   nombre1 = nombre1[0] + "_Reporte.xlsx"
-
+  print("Ruta de salida  " , nombre1)
   # Define the Drive API client
   #service = build("drive", "v3", credentials=credentials)
 
@@ -462,10 +476,10 @@ def Principal(Directorio_de_trabajo,Rutas_pendientes):
   del ds2['Delivery Time']
   del ds2['Delivery time']
   ds2 = ds2.rename(columns={'Due_y': 'Due_Date_Vendedor', 'Due Date': 'Due_Date_Calculado'})
-  writer = pd.ExcelWriter(nombre1, engine='xlsxwriter')
+  writer = pd.ExcelWriter(Directorio_de_trabajo+'\\'+filename2, engine='xlsxwriter')
   # Convert the dataframe to an XlsxWriter Excel object.
   print("Creando archivo", nombre1)
-  ds2.to_excel(writer, sheet_name='BD-2023',header=True, index = False)
+  ds2.to_excel(writer, sheet_name='Rutas Pendientes',header=True, index = False)
 
   while True:
       try:
@@ -482,5 +496,6 @@ def Principal(Directorio_de_trabajo,Rutas_pendientes):
   insertRow = ["","","","","","","","","","","","","","","","","","","","","","","","","","","",]
 
 if __name__ == '__main__':
+
   conf = parse_args()
   Principal(conf.Directorio_de_trabajo,conf.Archivo_Rutas)
