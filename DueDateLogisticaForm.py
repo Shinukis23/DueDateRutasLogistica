@@ -220,7 +220,7 @@ def Principal(Directorio_de_trabajo,Rutas_pendientes):
       'Part Price','Created','Ship Via','Order Store #','Part Store #','Due']],on=['Job #'],how="left")
   # Write the concatenated data to a new .xlsx file
   ########merged_data.to_excel(nomArchivo+'temporal.xlsx', index=False)
-  #merged_data.to_excel('temporalmerged.xlsx', index=False)
+  merged_data.to_excel('temporalmerged.xlsx', index=False)
   ##merged_data["Delivery time"]= datetime.now() 
   #indexDeleted = ds2[ds2['Job Status'] ==  'Pickup'].index
   #ds2.drop(indexDeleted,inplace=True)
@@ -245,8 +245,8 @@ def Principal(Directorio_de_trabajo,Rutas_pendientes):
   ####columnas = sys.argv[2]
 
   ####columnas = columnas.split(',')
-  #columnas=[12,16]
-  columnas=[11,15]
+  columnas=[12,16]
+  #columnas=[11,15]
   nombre1 = nombre.split('.')
   nombre2 = nombre.split('_')
   #nombre3 = nombre.split('\\')
@@ -315,7 +315,7 @@ def Principal(Directorio_de_trabajo,Rutas_pendientes):
       "Job #": '',
       #"Order #": '',
       #"Type": '',
-      #"Customer":'',
+      "Customer":'',
       "Interchange":'',
       #"Store #":'',
       "Stock #":'',
