@@ -51,8 +51,71 @@ scopes = [
 
 credentials = ServiceAccountCredentials.from_json_keyfile_name("monitor-eficiencia-3a13458926a2.json", scopes) #access the json key you downloaded earlier 
 file = gspread.authorize(credentials)# authenticate the JSON key with gspread
-
+#service = build("drive", "v3", credentials=credentials)
 #nombre = 'Duedate_Route_Deliveries.xls'
+#service = build("drive", "v3", credentials=credentials)
+service = build("drive", "v3", credentials=credentials,static_discovery=False)
+  # Define the URL to download the file from
+file_url = service.files().get(fileId=file_id2, fields="webContentLink").execute()["webContentLink"]
+parsed_url = urlparse(file_url)
+
+  # Define the filename to save the downloaded file as
+filename = f"ReporteProduccionDB.xlsx"
+
+  # Download the file
+try:
+    request = service.files().get_media(fileId=file_id2)
+    file = io.BytesIO()
+    downloader = io.BytesIO()
+    downloader.write(request.execute())
+    downloader.seek(0)
+    with open(filename, "wb") as f:
+        f.write(downloader.getbuffer())
+    print(f"File downloaded as {filename}")
+except HttpError as error:
+    print(f"An error occurred: {error}")
+
+# Define the URL to download the file from
+file_url = service.files().get(fileId=file_id0, fields="webContentLink").execute()["webContentLink"]
+parsed_url = urlparse(file_url)
+
+# Define the filename to save the downloaded file as
+filename = f"cortes2023.xlsx"
+
+# Download the file
+try:
+    request = service.files().get_media(fileId=file_id0)
+    file = io.BytesIO()
+    downloader = io.BytesIO()
+    downloader.write(request.execute())
+    downloader.seek(0)
+    with open(filename, "wb") as f:
+        f.write(downloader.getbuffer())
+    print(f"File downloaded as {filename}")
+except HttpError as error:
+    print(f"An error occurred: {error}")
+
+# Define the URL to download the file from
+file_url = service.files().get(fileId=file_id1, fields="webContentLink").execute()["webContentLink"]
+parsed_url = urlparse(file_url)
+
+# Define the filename to save the downloaded file as
+filename = f"tiempos.xlsx"
+
+# Download the file
+try:
+    request = service.files().get_media(fileId=file_id1)
+    file = io.BytesIO()
+    downloader = io.BytesIO()
+    downloader.write(request.execute())
+    downloader.seek(0)
+    with open(filename, "wb") as f:
+        f.write(downloader.getbuffer())
+    print(f"File downloaded as {filename}")
+except HttpError as error:
+    print(f"An error occurred: {error}")    
+
+
 
 @Gooey(program_name="Calculo de Due_Date Logistica")
 def parse_args():
@@ -61,10 +124,10 @@ def parse_args():
     every time we run the script.
 
     """
-    script_dir = os.path.dirname(os.path.abspath(__file__))
+    #script_dir = os.path.dirname(os.path.abspath(__file__))
 
     # Cambia el directorio de trabajo al directorio del script
-    os.chdir(script_dir)
+    #os.chdir(script_dir)
     stored_args = {}
     # get the script name without the extension & use it to build up
     # the json filename
@@ -74,7 +137,7 @@ def parse_args():
     if os.path.isfile(args_file):
         with open(args_file) as data_file:
             stored_args = json.load(data_file)
-    parser = GooeyParser(description='Calculo de Due_Date de Trabajos pendientes')
+    parser = GooeyParser(description='Calculo de Due_Date de Trabajos pendientes Ver.3.0 Ago 17/2023')
     #parser.add_argument('Archivo_Produccion',
     #                    action='store',
     #                    default=stored_args.get('cust_file'),
@@ -105,11 +168,12 @@ def parse_args():
 def Principal(Directorio_de_trabajo,Rutas_pendientes):
   #print(Directorio_de_trabajo)
   # Obtiene la ruta del directorio donde se encuentra el script
-  
+  #credentials = ServiceAccountCredentials.from_json_keyfile_name("monitor-eficiencia-3a13458926a2.json", scopes) #access the json key you downloaded earlier 
+  #file = gspread.authorize(credentials)
   directory = os.getcwd()
   print("Directorio original: ",directory)
   print("Directorio de trabajo: ",Directorio_de_trabajo)
-  # Define the Drive API client
+  """# Define the Drive API client
   service = build("drive", "v3", credentials=credentials)
   # Define the URL to download the file from
   file_url = service.files().get(fileId=file_id2, fields="webContentLink").execute()["webContentLink"]
@@ -131,23 +195,13 @@ def Principal(Directorio_de_trabajo,Rutas_pendientes):
   except HttpError as error:
       print(f"An error occurred: {error}")
 
+ """
 
   path = Rutas_pendientes
-  nombre, extension = splitext(path)
-  print("nombre :",nombre)
-  print("Extension:",extension)
-  print("Path",path)
-  # file creation
-  #####c_timestamp = os.path.getctime(r'RouteDelivery.pdf')
-  #c_timestamp = os.path.getctime(Rutas_pendientes)
-  #####print(c_timestamp)
-  # convert creation timestamp into DateTime object
-  ####c_datestamp = datetime.datetime.fromtimestamp(c_timestamp)
-   
-  #print('Created Date/Time on:', c_datestamp)
-  ####nomArchivo = nombre+c_datestamp.strftime("_%Y%m%d_%H%M%S")#+'.xlsx'
-  ####tabula.convert_into(path, "temporal235.csv", output_format="csv", pages='all')
-  ####datos = pd.read_csv("temporal235.csv")
+  nombre = os.path.basename(path)
+  #nombre, extension = splitext(path)
+  #print("nombre :",nombre)
+ 
   datos = pd.read_excel(path)
   ####os.remove(r'temporal235.csv')
   ####print(datos.head(5))
@@ -157,16 +211,16 @@ def Principal(Directorio_de_trabajo,Rutas_pendientes):
   rutas = datos.copy()
   ####datos.to_excel(nomArchivo+'.xlsx', index=False)
 
-
+  filename = f"ReporteProduccionDB.xlsx"
   #rutas= pd.read_excel(path)
   ####rutas= pd.read_excel(nomArchivo+'.xlsx')
   #concatenated_data=pd.read_excel(r'ReporteProduccionDB.xlsx')
   concatenated_data=pd.read_excel(filename)
-  merged_data = pd.merge(rutas,concatenated_data[['Job #','Drop Location','R #','Stock #','Interchange','Part Description Summary',
+  merged_data = pd.merge(rutas,concatenated_data[['Job #','Customer','Drop Location','R #','Stock #','Interchange','Part Description Summary',
       'Part Price','Created','Ship Via','Order Store #','Part Store #','Due']],on=['Job #'],how="left")
   # Write the concatenated data to a new .xlsx file
   ########merged_data.to_excel(nomArchivo+'temporal.xlsx', index=False)
-  merged_data.to_excel('temporalmerged.xlsx', index=False)
+  #merged_data.to_excel('temporalmerged.xlsx', index=False)
   ##merged_data["Delivery time"]= datetime.now() 
   #indexDeleted = ds2[ds2['Job Status'] ==  'Pickup'].index
   #ds2.drop(indexDeleted,inplace=True)
@@ -176,12 +230,12 @@ def Principal(Directorio_de_trabajo,Rutas_pendientes):
   dt = merged_data_drop.copy() #crea Copia de DataFrame para trabajar en el.
   merged_data = merged_data[merged_data['Drop Location'].isnull()]
   ##merged_data = merged_data.drop('Delivery time', axis=1)
-  merged_data.to_excel(r'Job no encontrados en Produccion.xlsx', index=False)
+  #merged_data.to_excel(r'Job no encontrados en Produccion.xlsx', index=False)
   #dl = pds.DataFrame() ##### Debug key
   #ds.to_excel(r'temporal.xlsx', sheet_name='BD-2022',header=True, index = False) 
   dt.to_excel(r'temporal.xlsx', index=False)
   ds= pd.read_excel(r'temporal.xlsx')
-  ######os.remove(r'temporal.xlsx')
+  os.remove(r'temporal.xlsx')
   #ds=merged_data.dropna(subset=['Drop Location'])
 
 
@@ -195,16 +249,21 @@ def Principal(Directorio_de_trabajo,Rutas_pendientes):
   columnas=[11,15]
   nombre1 = nombre.split('.')
   nombre2 = nombre.split('_')
-  nombre3 = nombre.split('\\')
+  #nombre3 = nombre.split('\\')
   print(nombre2)
-  print(nombre3)
-  filename2= nombre3[2] + "_Reporte.xlsx"
+  #print(nombre3)
+  
+
+  
+
   nombre1 = nombre1[0] + "_Reporte.xlsx"
-  print("Ruta de salida  " , nombre1)
+  #print("Ruta de salida  " , nombre1)
+  filename2= Directorio_de_trabajo+'\\' +nombre1
+  #print("asi se llama: ",filename2)
   # Define the Drive API client
   #service = build("drive", "v3", credentials=credentials)
 
-  # Define the URL to download the file from
+  """# Define the URL to download the file from
   file_url = service.files().get(fileId=file_id0, fields="webContentLink").execute()["webContentLink"]
   parsed_url = urlparse(file_url)
 
@@ -243,7 +302,7 @@ def Principal(Directorio_de_trabajo,Rutas_pendientes):
       print(f"File downloaded as {filename}")
   except HttpError as error:
       print(f"An error occurred: {error}")    
-
+"""
 
   df = pd.read_excel(r'Tiempos.xlsx')
   dc = pd.read_excel(r'Cortes2023.xlsx')
@@ -308,7 +367,7 @@ def Principal(Directorio_de_trabajo,Rutas_pendientes):
   ds2['Fecha'] = pd.to_datetime(ds2['Created_y']).dt.date
   ds2['Conciliacion']=" "
   ds2['Delivery time']= datetime.now().date()###############
-  print(ds2['Delivery time'])####################
+  #print(ds2['Delivery time'])####################
   #Asigno el valor de ruta
   dscompleto= ds2.copy()
 
@@ -476,7 +535,7 @@ def Principal(Directorio_de_trabajo,Rutas_pendientes):
   del ds2['Delivery Time']
   del ds2['Delivery time']
   ds2 = ds2.rename(columns={'Due_y': 'Due_Date_Vendedor', 'Due Date': 'Due_Date_Calculado'})
-  writer = pd.ExcelWriter(Directorio_de_trabajo+'\\'+filename2, engine='xlsxwriter')
+  writer = pd.ExcelWriter(filename2, engine='xlsxwriter')
   # Convert the dataframe to an XlsxWriter Excel object.
   print("Creando archivo", nombre1)
   ds2.to_excel(writer, sheet_name='Rutas Pendientes',header=True, index = False)
